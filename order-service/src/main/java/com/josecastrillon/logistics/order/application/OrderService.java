@@ -1,6 +1,7 @@
 package com.josecastrillon.logistics.order.application;
 
 import java.time.Clock;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +27,9 @@ public class OrderService {
 
     @Transactional
     public Order place(String customerId, String deliveryAddress, List<OrderItem> items) {
-        var order = Order.place(customerId, deliveryAddress, items, clock.instant());
+        // PostgreSQL stores microseconds: truncate so the response matches what is read back later
+        var now = clock.instant().truncatedTo(ChronoUnit.MICROS);
+        var order = Order.place(customerId, deliveryAddress, items, now);
         return orders.save(order);
     }
 
